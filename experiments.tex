@@ -1,0 +1,167 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Data}
+
+\subsubsection{Data Tagging}
+
+In order to enhance the linguistic adaptability of our model across different dialects and languages, we conducted a detailed data tagging process using the BGE (Bilingual Generalized Embedding) model. The BGE model allowed us to generate embeddings for each data entry, which were then compared to predefined tags, enabling us to assign contextually relevant linguistic features to our dataset. This tagging process was essential for building a robust dataset that accurately reflects the stylistic and grammatical differences present in each dialect.
+
+\textbf{Tagging Process}: Each text entry in our dataset was embedded using the BGE model's embeddings. The embeddings were generated based on a set of linguistic parameters, including dialect, setting, tone, and linguistic features. These categories were defined as follows:
+\begin{itemize}
+    \item \textbf{Dialect}: Tags for different dialects such as AAVE (African American Vernacular English), Haitian Creole, and SAE (Standard American English) were used to represent the dominant linguistic style of each entry.
+    \item \textbf{Setting}: This parameter categorized entries as either \textit{urban} or \textit{rural} based on the contextual setting inferred from the text.
+    \item \textbf{Tone}: Entries were classified with either a \textit{formal} or \textit{informal} tone to capture variations in grammatical structure and word choice.
+    \item \textbf{Linguistic Features}: Specific linguistic features, such as phonetic contractions (e.g., “gonna” or “ain’t”) and French-derived lexicon in Haitian Creole, were tagged to provide additional contextual cues for the model during training and evaluation.
+\end{itemize}
+
+\textbf{Parameter Settings}: For each tag example (such as "urban," "formal," or "AAVE"), we generated embeddings using the BGE model. The embeddings were derived with a maximum token length of 512, which ensured each text entry was adequately represented without truncation. We applied cosine similarity between each entry’s embedding and the predefined tag embeddings to determine the closest matching tag. The highest similarity score within each category was selected as the final tag for that category, thus providing a multi-dimensional linguistic characterization of each entry.
+
+This tagging process allowed us to annotate each text with comprehensive linguistic metadata, which facilitated improved performance during model training. It also enabled us to evaluate the model’s ability to adapt to diverse dialects and linguistic features, a critical requirement for assessing dialectal and linguistic accuracy in our evaluation stage.
+
+
+\subsubsection{AAVE Dataset}
+The African American Vernacular English (AAVE) dataset used in this study is derived from the CORAAL project \cite{kendall23}, specifically from the Atlanta section of the corpus. The dataset consists of dialogues representing natural spoken AAVE, collected from interviews and other conversational contexts. Each entry in the dataset includes fields for the speaker, start time, content, and end time of each utterance. The content covers a wide range of informal dialogue, reflecting cultural and linguistic nuances specific to the AAVE dialect.
+
+Following best practices for dataset preparation, we divided the AAVE data into training, development, and test sets using an 80/10/10 split ratio. This split ensures a representative distribution of linguistic features across the three sets while allowing for effective model evaluation. The split is outlined in Table~\ref{table:aave-split}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Set} & \textbf{Dialogues} & \textbf{Length} & \textbf{Tags} \\
+        \hline
+        Training & 19,080 & 461,267 & 76,320 \\
+        Development & 2,385 & 56,881 & 9,540 \\
+        Test & 2,386 & 58,737 & 9,544 \\
+        \hline
+    \end{tabular}
+    \caption{Data split for AAVE dataset. The "Length" column refers to the total length of dialogues in tokens, and "Tags" refers to linguistic annotations associated with each entry.}
+    \label{table:aave-split}
+\end{table}
+
+\subsubsection{Haitian Creole Dataset}
+The Haitian Creole dataset used in this research is adapted from the Alpaca Haitian Creole Taco dataset \cite{SAILLab:24}, a collection of prompts and responses designed to train conversational models in the Haitian Creole language. Each entry in the dataset includes an "Instruction" (task prompt), "Input" (optional additional context), and "Output" (expected response). The dataset reflects formal and informal tones and covers vocabulary specific to Haitian Creole.
+
+Following a similar approach to the AAVE dataset, we split the Haitian Creole dataset into training, development, and test sets with an 80/10/10 ratio. The split ensures coverage of different linguistic and contextual markers for reliable evaluation. Table 2 presents the split distribution.
+
+\begin{table}[h]
+    \centering
+    \small  % Reduces the font size of the table
+    \setlength{\tabcolsep}{4pt} % Adjusts the space between columns
+    \renewcommand{\arraystretch}{1.1} % Adjusts row height for compactness
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{Set} & \textbf{Dialogues} & \textbf{Instruction Length} & \textbf{Tags} \\
+    \hline
+    Training & 39,680 & 2,175,336 & 158,720 \\
+    Development & 4,960 & 273,196 & 19,840 \\
+    Test & 4,961 & 271,184 & 19,844 \\
+    \hline
+    \end{tabular}
+    \caption{Data split for Haitian Creole dataset. The "Instruction Length" column denotes the total token length for instructions, and "Tags" refers to linguistic annotations assigned to each entry.}
+\end{table}
+
+\subsection{Data Split Rationale}
+To ensure a balanced and effective distribution of linguistic features across all subsets, we followed established best practices in data splitting. For datasets with more than 10,000 instances, an 80/10/10 split was applied, where 80\% of the data was reserved for training, 10\% for development, and the remaining 10\% for testing. This approach allows for robust training and reliable validation and testing phases, providing comprehensive evaluation metrics for each dialect. Cross-validation techniques were considered but deemed unnecessary given the large size of both datasets.
+
+\subsection{Experimental Settings}
+
+Our experiments were conducted on Google Colab's high-performance computational platform, utilizing the cloud's high ram CPUs, which allowed us to efficiently iterate over the data splits for our experiments. All models were given a max token generation parameter of 2500 and by reading in the data by batches (Batch size of 5) and adding multiple entries per input tag, we streamlined the models' data reading process for a broader analysis across a larger dialogue. Not only does this make the processing faster, but it provides a broader conversational context that the model recognizes. In this specific iteration of experiments we define $D_1$ = Haitian Creole, $D_2$ = Standard American English, and $D_3$ = African American Vernicular English.
+
+We gave the base model a temperature of $0.5$ to encourage some exploration in the dataset without losing logical functionality. The LDP and PolyP models were ran at a slightly higher temperature of $0.6$ to encourage further delving into dialectal tags and intricacies. Since both these models were provided with more data, we believe the larger context might mitigate for loss of reasoning. Finally our hybrid model that was provided with all three tagged datasets, was given the most freedom to explore with a temperature of $0.7$. 
+
+\textbf{Dialect-Specific Prompting:} Through LDP, the model was prompted with exemplar prompts that encouraged dialect-specific adaptation for Haitian Creole. This included the usage of sample dialogues reflecting common phraseology in both AAVE and SAE. Polyglot prompting was introduced to facilitate real-time language adaptation, allowing the model to handle code-switching between our low resource languages and dialects.
+
+\subsection{Model Development}
+
+\subsubsection{LLaMA Model Development}
+
+\textbf{Model Configuration and Initialization:} We initially wanted to run our experiments with a base Llama 3.2, but discovered that it has no prior knowledge of Haitian Creole speech. We omitted this model to focus on our GPT-4o implementations.
+
+\textbf{Training Objectives and Fine-tuning Strategy:} Given the domain-specific focus on AAVE and Haitian Creole, we wanted to fine-tune using domain-specific prompts under Linguistically-Diverse Prompting (LDP) and Polyglot Prompting methods. The training data was curated to cover various linguistic and contextual features, such as informal, formal, urban, and rural tones. During fine-tuning, we wanted to emphasize dialect-sensitive response generation, adjusting the model’s attention layers to adapt dynamically to dialect-specific syntactic and lexical patterns. We planned to incorporate a test run with a fine-tuned model using LLaMA 3.2. LLaMA 3.2 is not previously trained in our chosen low-resource languages, so this meant that we would have needed to train it in said low-resource languages, unlike GPT-4o that might not be fine-tuned, but is still trained.
+
+\subsubsection{GPT-4o}
+
+\textbf{Model Configuration and Use Case:} For the GPT-4o model, we used OpenAI’s API without any additional fine-tuning, taking advantage of its pre-existing capabilities in handling diverse language structures and dialects. GPT-4o's architecture, pretrained on a broad array of multilingual and multidialectal data, allows it to generalize effectively to tasks involving AAVE, Haitian Creole, and SAE without requiring additional training on specific dialectal datasets.
+
+\textbf{Inference Strategy:} Instead of fine-tuning, we leveraged GPT-4o in a zero-shot or few-shot configuration. This involved designing prompts to instruct GPT-4o to recognize and respond in the appropriate dialect based on contextual and linguistic cues. For instance, prompts were structured to inform GPT-4o to generate responses that mirror the syntactic and lexical norms of AAVE or Haitian Creole, as well as to switch between dialects as needed. Linguistically-Diverse Prompting (LDP) and Polyglot Prompting techniques were employed in the prompts to maximize dialectal adaptation.
+
+
+\textbf{Evaluation of GPT-4o’s Dialect Adaptation:} Although not fine-tuned, GPT-4o’s outputs were evaluated on dialect-specific F1 score metrics provided by DialectBench \cite{Faisal:24} to assess its effectiveness in generating responses that align with AAVE and Haitian Creole linguistic norms. DialectBench was employed to measure F1 scores on dialectal NLP tasks.
+
+\subsection{Evaluation Metrics}
+
+To assess the performance of our model in handling dialectal variations, we employ DialectBench \cite{Faisal:24}, a comprehensive benchmarking framework designed for evaluating dialectal and linguistic accuracy across NLP tasks involving closely related languages and dialects \cite{Faisal:24}. DialectBench provides a systematic approach to evaluating language models on non-standard dialects by measuring their ability to accurately generate and respond with dialect-specific linguistic features. The following relevant tasks were measured: Natural Language Inference (NLI), Machine Reading Comprehension (MRC), and Machine Translation (MT).
+
+\subsubsection{DIALECTBENCH}
+DIALECTBENCH \cite{Faisal:24} uses the F1 score as a core evaluation metric to capture a balanced measure of precision and recall in the detection and generation of dialect responses. The F1 score is particularly well-suited for tasks requiring dialectal adaptation, as it enables us to quantify how effectively the model can distinguish and reproduce unique linguistic characteristics associated with different dialects, such as syntax, and lexicon. 
+
+In our experiments, the F1 score is calculated based on the precision of the model to respond to inputs in AAVE (African American Vernacular English) and Haitian Creole, comparing these outputs to expected responses that adhere to dialect-specific features. By fine-tuning the model in each dialect, our aim is to improve the F1 scores by aligning the model output with relevant linguistic markers for each variety.
+
+We made use of DIALECTBENCH's machine translation) scoring system. BLEU serves as a fundamental metric in machine translation evaluation, calculating similarity scores between machine-generated translations and reference human translations found in $D_1, D_2$ and $D_3$. The scoring system we utilized operates by comparing n-grams (sequences of consecutive words) between the candidate and reference translations, typically evaluating sequences from uni-grams to 4-grams.
+
+Our adapted DIALECTBENCH \cite{Faisal:24} metric \textbf{Natural Language Inference (NLI)} involved premises and hypotheses derived from AAVE and Haitian Creole datasets. These were selected based on our chosen cultural and contextual tags. We assigned GPT-4o to annotate ground truth labels for entailment, contradiction, or neutral relationships in our generated responses and data. 
+
+The subsequent metric \textbf{Machine Reading Comprehension (MRC)} compared paragraphs selected from AAVE and Haitian Creole datasets and corresponding analysis generated by our models. F1 scores evaluated token-level matches between predictions and ground truth, emphasizing the inclusion of contextual markers (\(c_j\)) in comprehension tasks.
+
+\[
+\small
+F_1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}
+\]
+
+\textbf{Machine Translation (MT)} utilized BLEU scores (\(\text{Bilingual Evaluation Understudy}\)) to evaluate the final generated dialogue responses $r_{ej}$.
+\[
+\small
+\text{BLEU} = \exp\left(\min\left(1 - \frac{l_{r_{e_j}}}{l_{e_{z_i}}}, 0\right) + \sum_{n=1}^N w_n \log p_n \right)
+\]
+
+where \(l_{r_{e_j}}\) is the candidate translation length, \(l_{e_{z_i}}
+\) is the reference length, \(p_n\) is the precision for n-grams, and \(w_n\) are weights for n-gram precision.\\ 
+
+
+\subsection{Results}
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Model} & \textbf{NLI (F1)} & \textbf{MRC (F1)} \\ \hline
+Base Model & 0.645 $\pm $ 0.106 & 0.803 $\pm $ 0.065 \\ \hline
+LDP Model & 0.617 $\pm $ 0.085 & 0.755 $\pm $ 0.098\\ \hline
+PolyP & 0.595 $\pm $ 0.093 & 0.903 $\pm $ 0.056 \\ \hline
+Combo Model & 0.561 $\pm $ 0.081 & 0.924 $\pm $ 0.042 \\ \hline
+\end{tabular}
+\caption{Natural Language Inference and Machine Reading Comprehension Performance}
+\label{tab:model-performance}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Model} & \textbf{MT BLEU Score} \\ \hline
+
+Base Model & 2.456 $\pm $ 3.359 \\ \hline
+LDP Model & 3.804 $\pm $ 4.009\\ \hline
+PolyP Model & 6.507$\pm $ 8.866 \\ \hline
+Combo Model & 18.057 $\pm $ 10.703\\ \hline
+
+\end{tabular}
+\caption{Machine Translation Performance}
+\label{tab:mt-bleu-performance}
+\end{table}
+
+\subsection{Interpretation}
+
+The results presented in tables~\ref{tab:model-performance} and~\ref{tab:mt-bleu-performance} reveal important insights into the performance of various language models across different tasks. Key findings indicate that the more complex Hybrid and PolyP models generally outperform the LDP and base models in translation tasks, particularly when contextual tags and polyglot datasets are provided. 
+
+There is an inverse relationship between model complexity and Natural Language Inference (NLI) performance, where simpler models actually outperform their more complex counterparts. As noted in Figure~\hyperref[fig:nli-scores]{3} the Base Model achieves the highest F1 score of 0.645, while the more sophisticated Hybrid Model shows the lowest at 0.561. However, this pattern is completely in table Figure~\hyperref[fig:mrc-scores]{4}, where the Hybrid Model excels with an impressive F1 score of 0.924 compared to the Base Model's 0.803. Furthermore we see an even more dramatic difference in table Figure~\hyperref[fig:mt-scores]{5}, where the Hybrid Model achieves a BLEU score of 18.057, vastly outperforming the Base Model's score of 2.456.
+
+These results suggest important implications about the relationship between model complexity and task-specific performance. While increased model complexity and a higher temperature appears to benefit both MRC and MT tasks substantially, it seems to interfere with NLI capabilities. This could indicate potential task interference in multi-task learning scenarios or suggest that different language understanding tasks may require different architectural approaches. The stability of performance also varies significantly across tasks. MRC shows relatively consistent improvements with smaller standard deviations, while MT exhibits high variance in performance, with standard deviations exceeding the magnitude of the scores themselves.
+
+The findings raise several critical questions for future research. First, the consistent degradation in NLI performance across more complex models warrants investigation, as it challenges the common misconception that more sophisticated models necessarily perform better. Second, the high variance in MT scores suggests the need for re-evaluation on our tagging approach. This may also indicate a need for further studies in other low-resource languages where cross-lingual tasks are not as extreme.
+
+
+
+
+

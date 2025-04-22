@@ -1,0 +1,49 @@
+\section{Related Work}
+\label{sec:related-work}
+                                            
+\subsection{Literature Review}
+Several recent studies have demonstrated significant progress in language detection; however, fewer works have focused specifically on automatic dialect detection and output. While this area remains relatively under-explored, some research has been done on related tasks.
+
+\subsubsection{Contextual Importance}
+
+For instance, \cite{Martin:24} highlights the integration of AI dialects to enhance user perceptions of warmth, competence, and authenticity, which in turn improves trust, satisfaction, and loyalty in AI interactions. This research emphasizes how adapting AI responses to user linguistic preferences plays a critical role in improving user engagement.
+
+\subsubsection{Evaluating Linguistic Performance in LLMs}
+
+And, while automatic dialect detection is not yet fully explored, benchmarks such as DIALECTBENCH \cite{Faisal:24} have introduced a large-scale NLP benchmark covering 281 varieties across 40 language clusters. This framework evaluates performance gaps between standard and non-standard dialects, promoting NLP model robustness in handling dialectal variations, especially for underrepresented languages.
+
+Several methods have been explored to improve dialect identification and NLP performance across diverse languages and dialects. \cite{Jauhiainen:19} incorporated accent ID tokens into their model, significantly boosting performance in multi-dialect speech recognition, a technique that could also be applied to English dialects such as AAVE and Creole. Similarly, \cite{Hinsvark:21} demonstrates the effectiveness of accent ID tokens in improving model adaptability and recognition rates across a variety of accents.
+
+In another approach, \cite{Jain:18} combined accent embeddings with multitask learning to enhance automatic speech recognition performance on accented speech, which significantly reduced error rates and improved accuracy across dialects.
+
+\subsubsection{Prompting for Optimal Results}
+
+Linguistically-Diverse Prompting (LDP) has recently emerged as an innovative method to enhance LLM performance, especially in low-resource languages. \cite{Nguyen:24} proposed this technique, which utilizes synthetic exemplars from high-resource languages to improve unsupervised translation, summarizing, and question answering for 34 low-resource languages. This method leverages the strong generative abilities of models like GPT-4o to improve performance across diverse linguistic tasks, including dialect identification.
+
+Polyglot Prompting, introduced by \cite{Ng:22}, further enhances multilingual models by utilizing shared prompts across languages, improving generalization and facilitating effective cross-lingual transfer. This methodology is particularly relevant to improving dialect-specific language tasks, given the linguistic diversity of dialects such as AAVE and Creole.
+
+Other research has explored the role of socio-cultural and cross-cultural factors in dialect identification. \cite{Garimella:16} utilized computational models like AdaBoost to identify cross-cultural differences in word usage by analyzing personal writings from the United States and Australia. The study used classifiers based on linguistic features and topic modeling to uncover how language reflects cultural biases, enhancing dialect detection through cultural awareness.
+
+Additionally, integrating external knowledge sources can further improve NLP models. \cite{Camboim:24} proposed using Knowledge Graphs (KGs) alongside LLMs to enhance chatbots' ability to understand socio-cultural contexts during user interactions, specifically in the context of machine translation. This combination of KGs and LLMs enhances the model's capacity to capture cultural intricacies, improving translation accuracy and contextual understanding in dialects.
+
+Finally, \cite{Goldin:18} explored Native Language Identification (NLI), combining linguistically motivated features with social network characteristics to improve the accuracy of distinguishing between native and non-native speakers. This method leveraged linguistic patterns and user behavior on platforms like Reddit to capture subtle differences in language use across speakers' native languages, contributing to improved dialect recognition.
+
+\subsubsection{Data}
+
+The availability of high-quality data is essential for improving NLP models, especially for dialect-specific tasks. \cite{Lent:24} introduced CreoleVal, a multilingual benchmark that spans 28 Creole languages and covers various NLP tasks such as reading comprehension, relation classification, and machine translation. By curating novel datasets and applying transfer learning from higher-resourced ancestor languages, this study enhanced NLP model performance for Creole languages. Importantly, it emphasizes the need for cultural sensitivity in language processing, which is critical for dialect adaptation and recognition, meaning our search for contextual nuance in datasets was key to our model function.
+
+\cite{Upadhayay2024} demonstrate TaCo (translation-assisted chain-of-thought) reasoning which enhances cross-lingual transfer in datasets for low-resource languages, achieving significant improvements in multilingual LLM performance across several low-resource languages. The Haitian Creole dataset we use in our study is also their creation. In their study, they did not make use of the Haitian Creole dataset. 
+
+Our SAE dataset hails from \cite{kim2022} PROSOCIALDIALOG which introduces the first large-scale multi-turn dialogue dataset designed to guide conversational agents in responding to potentially unsafe user inputs following prosocial norms. The dataset includes 58,000 dialogues, 331,000 utterances, 160,000 unique rules-of-thumb, and 497,000 safety labels with rationales. Matching our interests in contextual dialogue, this dataset provides an excellent high-resource language pool, that can easily be mapped to our chosen low-resource language.
+
+ The Corpus of Regional African American Language (CORAAL) \cite{kendall23} presented a corpus of untagged AAVE dialogue, which complements our use of polyglottal languages. Additionally, CORAAL offers a comprehensive and regionally diverse collection of African American Vernacular English (AAVE) data. The latest CORAAL version (2023.06) includes over 220 speakers, notably incorporating a new Detroit 1966 dataset with 40 speakers from the classic Detroit Dialect Study. This resource aligns well with our study's goals of exploring linguistic diversity and dialectal nuances in natural language processing tasks.
+
+\subsubsection{Challenges}
+
+Many existing models still face challenges when distinguishing between closely related dialects, particularly in low-resource languages such as AAVE and Creole. For example, while \cite{Jauhiainen:19} successfully integrated accent ID tokens to improve multi-dialect recognition, their approach struggled with highly similar dialects that have subtle phonetic differences, such as AAVE and SAE. This suggests utilizing ID tokens in our hybrid model might complicate the cross-lingual tasks between SAE and AAVE. 
+
+Benchmarks like DIALECTBENCH \cite{Faisal:24}, though comprehensive in covering a wide variety of languages, reveal that performance gaps still exist between standard and non-standard dialects. The underrepresentation of dialect-specific data in these benchmarks poses a significant challenge, as models tend to over-fit to high-resource languages and struggle with the dialects that fall outside this scope. DIALECTBENCH currently has only been tested with mBERT, XLM-r, and NLLB. Adapting it to benchmark GPT-4o may prove to be another limitation, possibly leading to inconsistencies in our evaluation results.
+
+Furthermore, approaches like Linguistically-Diverse Prompting (LDP) \cite{Nguyen:24} have demonstrated success in improving performance for low-resource languages, yet they still depend heavily on the availability of high-quality exemplars from related high-resource languages. This creates a limitation when there is insufficient data for the source or target languages, leading to diminished model performance, especially in cases where dialects do not have an extensive linguistic corpus.
+
+While \cite{Lent:24} introduces CreoleVal to address the gap in data for Creole languages, it highlights a broader issue in dialect-specific NLP: the scarcity of large, annotated datasets which we only found in SAE.

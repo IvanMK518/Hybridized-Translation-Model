@@ -1,0 +1,133 @@
+\section{Score Figures}
+\label{sec:appendix}
+
+\subsection{Natural Language Inference}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-11-25 at 1.36.10 PM.png}
+    \caption{Average NLI F1 Score}
+    \label{fig:nli-scores}
+\end{figure}
+
+\subsection{Machine Reading Comprehension}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-11-25 at 1.35.51 PM.png}
+    \caption{Average MRC F1 Score}
+    \label{fig:mrc-scores}
+\end{figure}
+
+\subsection{Machine Translation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-11-25 at 1.35.37 PM.png}
+    \caption{Average MT BLEU Score}
+    \label{fig:mt-scores}
+\end{figure}
+
+\section{Prompts}
+
+\subsection{Example Base Model Prompt}\\
+
+\begin{enumerate}
+    \item Observe the linguistic features of each entry of \{\textbf{D2}\}.
+    \item Translate the entry into Haitian Creole and perform a linguistic analysis on the translation.
+    \item Provide the cultural and conversational context of the translation.
+    \item Provide a dialogue response in Haitian Creole.
+\end{enumerate}\\
+
+\subsection{Example LDP Model Prompt}\\
+
+\begin{enumerate}
+    \item Observe the linguistic features in \{\textbf{D2}\}.
+    \item Translate the content of each \{\textbf{D2}\} entry into the language or dialect used in its corresponding \{\textbf{D1}\} entry.
+    \item Provide a dialogue response or continuation that reflects the content and context of the \{\textbf{D1}\} entry while retaining the tone of \{\textbf{D2}\}.
+    \item Ensure consistency with \{\textbf{D1}\}'s language and dialect style across all responses.
+    \item Perform a cultural and conversational context analysis of \{\textbf{D1}\} based on \{\textbf{D2}\}.
+    \item Provide a dialogue response in language \{\textbf{D1}\} (Haitian Creole) or a continuation based on what the speaker said in language \{\textbf{D2}\} (English).
+\end{enumerate}\\
+
+\subsection{Example PolyP Model Prompt}\\
+
+\begin{enumerate}
+    \item Conduct a translation task where you translate the dialect in \{\textbf{D1}\} to the dialect/language in \{\textbf{D3}\}.
+    \item Perform a cultural and conversational context analysis of \{\textbf{D1}\} based on the shared tags with \{\textbf{D3}\} and report them.
+    \item Provide a dialogue response in language \{\textbf{D1}\} or a continuation based on what the speaker said in \{\textbf{D3}\}.
+    \item Re-prompt yourself with the same tasks using the language spoken in \{\textbf{D1}\}.
+    \item Provide a dialogue response in language \{\textbf{D1}\} (Haitian Creole) or a continuation based on what the speaker said in language \{\textbf{D3}\} (AAVE).
+\end{enumerate}\\
+
+\section{Error Analysis}
+
+\subsection{Natural Language Inference}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-12-12 at 6.22.36 PM.png}
+    \caption{NLI Bin Analysis}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Machine Reading Comprehension}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-12-12 at 6.21.56 PM.png}
+    \caption{MRC Bin Analysis}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Machine Translation}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-12-12 at 6.21.33 PM.png}
+    \caption{MT Bin Analysis}
+    \label{fig:enter-label}
+\end{figure}
+
+\clearpage
+
+\subsection{Response Table}
+
+\begin{table}[h] 
+\centering
+\renewcommand{\arraystretch}{1.4} 
+\setlength{\tabcolsep}{5pt} 
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|p{4cm}|p{4.5cm}|p{4.5cm}|p{3.5cm}|}
+\hline
+\textbf{Model} & \textbf{Prompt} & \textbf{Model Output} & \textbf{Expected Output} & \textbf{Error Type} \\ \hline
+\textbf{Base Model} 
+& Translate: Sa k ap fèt? 
+& What’s happening? 
+& What’s going on? 
+& Ambiguity in linguistic tags \\ \hline
+\textbf{LDP Model} 
+& Provide a formal response to: Yo, what’s good? 
+& Hello, how are you? 
+& Greetings, how can I assist you? 
+& Misaligned reasoning \\ \hline
+\textbf{Polyglot Model} 
+& Explain this proverb: What goes around, comes around. 
+& It’s a cycle. 
+& Actions have consequences. 
+& Idiomatic challenge \\ \hline
+\textbf{Combined Model} 
+& Rephrase: I ain’t got nothing. 
+& I don’t have anything. 
+& I do not have anything. 
+& False negatives \\ \hline
+\end{tabular}%
+}
+\caption{Examples of errors observed in responses.}
+\label{tab:error-analysis}
+\end{table}
+
+
+
+
+

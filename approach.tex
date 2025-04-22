@@ -1,0 +1,141 @@
+\section{Approach}
+\label{sec:approach}
+
+Our approach builds off of state-of-the-art techniques Linguistically Diverse Prompting (LDP) \cite{Nguyen:24} and Polyglot Prompting (PolyP) \cite{Ng:22} that have improved LLM cross-lingual performance previously. By incorporating cultural and conversational context tags to our datasets, we can further improve the model's performance and target linguistic adaptation for better conversation. While we are currently only working and applying our prompting techniques to a limited number of datasets, we believe this methodology can be universally adapted to other language combinations. Lastly by utilizing DIALECTBENCH \cite{Faisal:24} on the initial model schemas and then our hybridized model, we get an idea of the LLM's improvement in these lower-resource languages in a cross-lingual setting.
+
+\subsection{Cultural and Contextual Inclusion}
+
+For each document \(x_j \in D_X\), where \(D_X\) is a dataset of the target low-resource language \(X\), we augment the input with a cultural and contextual tag. This tag, denoted as \(c_j\), encodes conversational context (casual and formal) and cultural markers (urban, rural, and specific linguistic features). The input sentence \(x_j\) is thus represented as:
+
+\[
+x_j = (w_j, c_j)
+\]
+
+\noindent We let:
+
+\begin{itemize}
+    \item \(w_j\) denote the tokenized words of the sentence.
+    \item \(f_j\) denote formal speech.
+    \item \(t_j\) denote casual speech.
+    \item \(u_j\) denote urban speech.
+    \item \(r_j\) denote rural speech.
+    \item \(lf_j\) denote linguistic features specific to the language or dialect.
+\end{itemize}
+
+Thus, the cultural context \(c_j\) is defined as:
+
+\[
+c_j \in \{f_j, t_j\} \times \{u_j, r_j, lf_j\}
+\]
+
+This representation of \(c_j\) allows the model to incorporate both conversational and cultural markers, improving its understanding of the context in which a sentence is used.
+
+In the case of polyglot prompting \cite{Ng:22}, we extend this approach by including multiple languages in the exemplar set \(Z_i\). For each text sample, we construct prompts from multiple high-resource languages \(Z_i \in \text{High-Resource Languages}\), incorporating the same cultural and contextual markers \(c_{zi}\) as follows:
+
+\[
+\small
+E_{Z_i} = \{(z_i, c_{zi}, e_{zi}) \mid Z_i \in \text{High-Resource Languages}\}
+\]
+
+\begin{itemize}
+    \item \(z_i\) is a sample document from the high-resource language \(Z_i\).
+    \item \(e_{zi}\) is the corresponding English translation.
+    \item \(c_{zi}\) encodes the cultural and contextual markers for each exemplar.
+\end{itemize}
+
+
+For an input document \(x_j\) from a low-resource language, the model detects the cultural context \(c_j\) and uses the polyglot exemplars to better understand how to translate or respond \cite{Ng:22}. The translation task is formalized as:
+
+\[
+\small
+F_{\text{X} \to \text{E}}(x_j, c_j) = \mathbb{P}(e_j \mid x_j, c_j, z_1, e_{z_1}, \dots, z_n, e_{z_n})
+\]
+
+\begin{itemize}
+    \item \(e_j\) is the output.
+    \item \(z_i\) and \(e_{z_i}\) are the high-resource language exemplars guiding the model.
+\end{itemize}
+
+\subsection{Cultural and Contextual Detection}
+
+To facilitate cross-lingual tasks \cite{Nguyen:24}, we gather exemplar pairs from high-resource languages \(Z_i \in \text{High-Resource Languages}\). Each exemplar pair includes cultural and contextual tags \(c_{zi}\) alongside the linguistic features. This is formalized as:
+
+\[
+\small
+E_{Z_i} = \{(z_i, c_{zi}, e_{zi}) \mid Z_i \in \text{High-Resource Languages}\}
+\]
+
+For an input sentence \(x_j\) from a low-resource language, the model detects the cultural context \(c_j\) and uses the exemplars from high-resource languages to better understand how to translate or respond \cite{Nguyen:24}. The process is formalized as:
+
+\[
+\small
+F_{\text{X} \to \text{E}}(x_j, c_j) = \mathbb{P}(e_j \mid x_j, c_j, z_1, e_{z_1}, \dots, z_n, e_{z_n})
+\]
+
+Where \(e_j\) is the output (dialogue response and analysis) and \(z_i\) are the exemplars guiding the model.
+
+\subsection{Adapting to Dialects}
+
+The final objective is for the model to automatically adapt to the dialect and conversational style of the input without needing explicit prompting. Given an input \(x_j\) with contextual markers \(c_j\), the model generates a response \(re_j\) in the same dialect that can then be evaluated through DIALECTBENCH \cite{Faisal:24}, formalized as:
+
+\[
+\small
+F_{\text{Adapting}}(x_j, c_j) = \mathbb{P}(re_j \mid x_j, c_j, z_1, e_{z_1}, \dots, z_n, e_{z_n})
+\]
+
+\subsubsection{Defining The Input and Prompts}
+
+\[
+\text{Datasets} = \{D_1, D_2, D_3\}
+\]
+
+\begin{itemize}
+    \item \(D_o \in \{\text{AAVE, Haitian Creole}\}\) alternates between AAVE and Haitian Creole for fine-tuning. such that $D_1 \neq D_2$ and $D_1, D_2 \in D_o$.
+    \item \(D_1 \) serves as the low-resource language being bench-marked and translated.
+    \item \(D_2 = \text{English dataset}\).
+    \item \(D_3\) serves as the additional polyglot language.
+\end{itemize}
+
+\textbf{Prompt} is defined as:
+\begin{itemize}
+    \item Cultural and contextual analysis flag (formal / casual, urban / rural, and linguistic characteristics).
+    \item Use of LDP and PolyP techniques for cross-lingual understanding.
+\end{itemize}
+
+\subsubsection{Hybrid Model Prompt}\\
+\begin{enumerate}
+    \item Observe the linguistic features in \{\textbf{D2}\} (since you are extensively trained in English).
+    \item Translate the content of each \{\textbf{D1}\} entry into the language or dialect used in its corresponding \{\textbf{D2}\} entry.
+    \item Conduct a translation task where you translate the dialect in \{\textbf{D1}\} to the dialect/language in \{\textbf{D3}\}.
+    \item Perform a cultural and conversational context analysis of \{\textbf{D1}\} based on the shared similarities with \{\textbf{D2}\} and \{\textbf{D3}\}.
+    \item Detect and report contexts.
+    \item Reprompt yourself with the same tasks using the language spoken in \{\textbf{D1}\}, then reprompt yourself with the same tasks by translating the reprompt in \{\textbf{D1}\} with the language spoken in \{\textbf{D3}\}.
+    \item Provide a dialogue response in language \{\textbf{D1}\} (Haitian Creole) or a continuation based on what the speaker said in language \{\textbf{D2}\} (English) and \{\textbf{D3}\} (AAVE), respectively.
+\end{enumerate}\\
+
+\subsubsection{Simultaneous Feeding}
+
+All data sets \(D_1, D_2,\) and \(D_3\) are fed into the API along with the cultural and contextual analysis tags and prompts:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-12-13 at 10.32.32 PM.png}
+    \label{fig:enter-label}
+\end{figure}
+
+
+\subsection{LDP (Linguistic-Diverse Prompting)}
+Linguistically-Diverse Prompting (LDP) has recently emerged as a robust approach to adapting language models, especially in tasks dealing with low-resource dialects such as AAVE and Creole. LDP uses examples from high-resource languages to improve low-resource language tasks by transferring linguistic structures and patterns. This method enables models to learn related languages or dialects and apply that learning to dialects with limited training data. For example, \cite{Nguyen:24} demonstrated how LDP can use synthetic exemplars from high-resource languages to enhance unsupervised tasks such as translation, summarization, and answering questions for low-resource languages.
+
+LDP supports few-shot learning, a technique that allows models to generalize from minimal labeled data, which is crucial for dialects where large-scale datasets are often unavailable. The strong generative abilities of models like GPT-4o make LDP particularly effective in improving the adaptation and detection of dialects. By fine-tuning LDP on small dialect-specific datasets, it is possible to better capture unique linguistic features, such as phonetic and syntactic variations inherent in dialects like AAVE or Creole.
+
+\subsubsection{Why LDP?} 
+LDP provides a way to improve dialect detection and language generation by helping models adapt to low resource languages and dialects that are underrepresented in traditional datasets. The ability of LDP to handle cross-lingual tasks with minimal data makes it a valuable method to refine the ability of our model to detect and respond to AAVE and Creole. Our model can capture nuanced linguistic features specific to our data without requiring varied corpora, which are often unavailable. Thus, incorporating LDP would enhance both the accuracy and cultural sensitivity of the model, making it's cross-lingual generation more nuanced.
+
+\subsection{Polyglot Prompting}
+Polyglot Prompting is another method that improves multilingual and multi-dialectal language tasks by utilizing prompts in multiple languages or dialects. This technique allows large language models to dynamically adapt to various linguistic contexts. For instance, \cite{Ng:22} demonstrated how Polyglot Prompting enhances model generalization across different languages by leveraging shared linguistic structures and facilitating cross-lingual transfer.
+
+By using polyglot prompts, models can learn to respond appropriately in multiple dialects, improving linguistic flexibility. This approach is particularly relevant for AAVE and Haitian Creole, as these dialects often involve code-switching or dialectal shifts in real-world language use. Polyglot prompting enables the model to recognize and respond based on the dominant dialect in the user’s input, ensuring a contextually appropriate response.
+
+\subsubsection{Why Polyglot Prompting?}
+Polyglot Prompting helps ensure that our model can dynamically respond to various English dialects. By exposing the model to prompts in Haitian Creole we can adapt it seamlessly to dialectal shifts in real-time conversations. This will significantly improve the model’s ability to handle multilingual environments or situations where users frequently switch between dialects. In essence, Polyglot Prompting supports our goal of building a model that is flexible and responsive to diverse linguistic inputs.
