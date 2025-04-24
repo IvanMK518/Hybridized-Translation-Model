@@ -1,0 +1,105 @@
+```{r}
+# Load required libraries
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+
+# List of CSV file paths
+csv_files <- c('/Users/ivanmartinez-kay/QTM-302W/Data/basemodeleval.csv', '/Users/ivanmartinez-kay/QTM-302W/Data/LDPeval.csv', '/Users/ivanmartinez-kay/QTM-302W/Data/polyeval.csv', '/Users/ivanmartinez-kay/QTM-302W/Data/comboeval.csv')
+
+# File names for labels
+file_labels <- c("Base Model", "LDP Model", "PolyP Model", "Combo Model")
+
+# Metrics to analyze and their new names
+metric_mapping <- c("nli_score" = "NLI (F1)", 
+                    "bleu_score" = "MT (Bleu)", 
+                    "comprehension_relevance" = "MRC (F1)")
+
+# Initialize a data frame to store the results
+results <- data.frame()
+
+# Loop over each CSV file
+for (file_index in seq_along(csv_files)) {
+  # Read the CSV file
+  df <- read.csv(csv_files[file_index])
+  
+  # Loop over each metric
+  for (metric in names(metric_mapping)) {
+    # Ensure the metric column exists
+    if (!metric %in% names(df)) {
+      stop(paste("The file", csv_files[file_index], "does not contain a column named", metric))
+    }
+    
+    # Convert the metric column to numeric
+    df[[metric]] <- as.numeric(df[[metric]])
+    
+    # Remove NA values
+    metric_values <- na.omit(df[[metric]])
+    
+    # Calculate mean and standard deviation
+    mean_value <- mean(metric_values)
+    sd_value <- sd(metric_values)
+    
+    # Add the results to the data frame
+    results <- rbind(results, data.frame(
+      File = file_labels[file_index],
+      Metric = metric_mapping[[metric]],  # Use renamed metric
+      Mean = mean_value,
+      SD = sd_value
+    ))
+  }
+}
+
+# Ensure the correct order of models
+results$File <- factor(results$File, levels = c("Base Model", "LDP Model", "PolyP Model", "Combo Model"))
+
+# Ensure the correct order of metrics
+results$Metric <- factor(results$Metric, levels = c("NLI (F1)", "MRC (F1)", "MT (Bleu)"))
+
+# Function to generate a bar chart for a given metric
+plot_metric <- function(metric_name) {
+  # Filter the results for the specified metric
+  metric_data <- subset(results, Metric == metric_name)
+  
+  # Generate the bar chart
+  ggplot(metric_data, aes(x = File, y = Mean, fill = File)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD), width = 0.2) +
+    labs(title = paste("Average", metric_name, "by Model"),
+         x = "Model",
+         y = paste("Mean", metric_name)) +
+    theme_minimal() +
+    scale_fill_manual(values = c("Base Model" = "red", "LDP Model" = "blue", 
+                                 "PolyP Model" = "green", "Combo Model" = "purple"))
+}
+
+# Generate and display bar charts for each metric
+for (metric in levels(results$Metric)) {
+  print(plot_metric(metric))
+}
+
+# Prepare data for the line plot
+line_plot_data <- dcast(results, Metric ~ File, value.var = "Mean")
+
+# Ensure metrics are ordered in the line plot
+line_plot_data$Metric <- factor(line_plot_data$Metric, levels = c("NLI (F1)", "MRC (F1)", "MT (Bleu)"))
+
+# Melt the data for plotting
+line_plot_data_melt <- melt(line_plot_data, id.vars = "Metric", variable.name = "Model", value.name = "Mean")
+
+# Generate the line plot with adjusted y-axis zoom and annotation for outlier
+ggplot(line_plot_data_melt, aes(x = Metric, y = Mean, group = Model, color = Model)) +
+  geom_line(size = 0.5) +
+  geom_point(size = 2) +
+  labs(title = "Performance Trends Across Metrics",
+       x = "Metric",
+       y = "Mean Score") +
+  theme_minimal() +
+  scale_color_manual(values = c("Base Model" = "red", "LDP Model" = "blue", 
+                                "PolyP Model" = "green", "Combo Model" = "purple")) +
+  coord_cartesian(ylim = c(0, 5)) +  # Zoom into a specific range for better precision
+  geom_text(data = subset(line_plot_data_melt, Mean > 5), 
+            aes(label = round(Mean, 1)), 
+            vjust = -1, size = 4, color = "purple") 
+
+```
